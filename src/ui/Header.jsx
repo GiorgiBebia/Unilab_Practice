@@ -117,7 +117,7 @@ export function Header({
           onClick={handleJoinCommunity}
         >
           <span className="font-SFProDisplay font-bold text-white text-[16px]">
-            Join the community
+            {enteredAccount ? `Hello, ${name}` : `Join the community`}
           </span>
         </div>
         <div className="w-[88px] h-[24px] flex justify-between items-center">
@@ -256,7 +256,7 @@ export function Header({
                 onClick={handleJoinCommunity}
               >
                 <span className="font-SFProDisplay font-bold text-white text-[16px]">
-                  Join the community
+                  {enteredAccount ? `Hello, ${name}` : `Join the community`}
                 </span>
               </div>
 

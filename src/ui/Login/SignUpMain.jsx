@@ -36,6 +36,7 @@ export function SignUpMain({ setView }) {
     setPassword("");
 
     setView("login");
+    alert("Account Created");
   }
 
   return (
