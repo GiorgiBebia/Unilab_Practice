@@ -1,17 +1,16 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiOutlineInfoCircle } from "react-icons/ai";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import supabase from "../../data/supabase";
 
 function Chat() {
   const [dogsArray, setDogsArray] = useState([]);
-
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const link = location.pathname.split("/").slice(2);
   const dogName = decodeURIComponent(link[0]);
-  const item = dogsArray.find((dog) => dog.name === dogName);
 
   const [messages, setMessages] = useState(() => {
     const savedMessages = localStorage.getItem(`chat-${dogName}`);
@@ -20,13 +19,19 @@ function Chat() {
 
   useEffect(() => {
     const fetchDogs = async () => {
-      let { data: dogsData, error } = await supabase
+      setLoading(true);
+      const { data: dogsData, error } = await supabase
         .from("dogsData")
         .select("*");
 
-      if (error) console.log(`err: ${error}`);
+      if (error) {
+        console.error(`Error fetching dogs: ${error.message}`);
+        setLoading(false);
+        return;
+      }
 
-      if (dogsData) setDogsArray(dogsData);
+      setDogsArray(dogsData);
+      setLoading(false);
     };
 
     fetchDogs();
@@ -35,6 +40,11 @@ function Chat() {
   useEffect(() => {
     localStorage.setItem(`chat-${dogName}`, JSON.stringify(messages));
   }, [messages, dogName]);
+
+  const item = useMemo(
+    () => dogsArray.find((dog) => dog.name === dogName),
+    [dogsArray, dogName]
+  );
 
   const handleSendMessage = (message, response) => {
     setMessages((prevMessages) => [
@@ -54,13 +64,13 @@ function Chat() {
     let response;
     switch (query) {
       case "What is the price?":
-        response = `My Price is ${item.price.toLocaleString()} VND`;
+        response = `My Price is ${item?.price.toLocaleString()} VND`;
         break;
       case "What is your age?":
-        response = `My Age is ${item.age} Month`;
+        response = `My Age is ${item?.age} Month`;
         break;
       case "What is your gender?":
-        response = `My Gender is ${item.gender}`;
+        response = `My Gender is ${item?.gender}`;
         break;
       default:
         response = "I don't understand.";
@@ -68,14 +78,15 @@ function Chat() {
     handleSendMessage(query, response);
   };
 
+  if (loading) return <div></div>;
+
   return (
     <div className="w-[414px] h-[997px] relative">
       <img
         className="w-[414px] h-[523px] object-cover"
-        src={item.img}
-        alt={item.name}
+        src={item?.img}
+        alt={item?.name}
       />
-
       <IoIosArrowBack
         className="absolute top-[69.5px] left-[26px] w-[25px] h-[25px] text-white cursor-pointer"
         onClick={() => navigate(-1)}
@@ -100,8 +111,8 @@ function Chat() {
               <div className="w-[48px] h-[48px] bg-[#003459] rounded-full flex items-center justify-center">
                 <img
                   className="w-[33px] h-[33px] rounded-full"
-                  src={item.img}
-                  alt={item.name}
+                  src={item?.img}
+                  alt={item?.name}
                 />
               </div>
             )}
