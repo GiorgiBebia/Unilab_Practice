@@ -1,12 +1,27 @@
 import { FaAngleRight } from "react-icons/fa6";
 import { Link } from "react-router-dom";
-import { dogsData } from "../../data/dogsData";
 import { scrollToTop } from "../ScrollToTop";
 ("../../ScrollToTop");
 import { PetDiv } from "./PetDiv";
+import supabase from "../../data/supabase";
+import { useEffect, useState } from "react";
 
 export function HomePets() {
-  const pets = [...dogsData];
+  const [pets, setPets] = useState([]);
+
+  useEffect(() => {
+    const fetchDogs = async () => {
+      let { data: dogsData, error } = await supabase
+        .from("dogsData")
+        .select("*");
+
+      if (error) console.log(`err: ${error}`);
+
+      if (dogsData) setPets(dogsData);
+    };
+
+    fetchDogs();
+  }, []);
 
   return (
     <div className="max-w-[1440px] mobile:max-w-[382px] w-full h-[926px] mobile:h-[1518px] flex flex-col overflow-hidden mobile:mx-auto">

@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { dogsData } from "../../data/dogsData";
 import { IoIosArrowBack } from "react-icons/io";
 import { AiOutlineInfoCircle } from "react-icons/ai";
 import { useState, useEffect } from "react";
+import supabase from "../../data/supabase";
 
 function Chat() {
-  const dogsArray = [...dogsData];
+  const [dogsArray, setDogsArray] = useState([]);
+
   const location = useLocation();
   const navigate = useNavigate();
   const link = location.pathname.split("/").slice(2);
@@ -16,6 +17,20 @@ function Chat() {
     const savedMessages = localStorage.getItem(`chat-${dogName}`);
     return savedMessages ? JSON.parse(savedMessages) : [];
   });
+
+  useEffect(() => {
+    const fetchDogs = async () => {
+      let { data: dogsData, error } = await supabase
+        .from("dogsData")
+        .select("*");
+
+      if (error) console.log(`err: ${error}`);
+
+      if (dogsData) setDogsArray(dogsData);
+    };
+
+    fetchDogs();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(`chat-${dogName}`, JSON.stringify(messages));

@@ -3,23 +3,38 @@ import { BiFilterAlt } from "react-icons/bi";
 import { IoMdArrowRoundForward } from "react-icons/io";
 import { IoArrowBackSharp } from "react-icons/io5";
 import { MdClose } from "react-icons/md";
-import { dogsData } from "../../data/dogsData";
 import { Dogs } from "./Dogs";
+import supabase from "../../data/supabase";
 
 export function CategoryMain() {
-  const dogData = [...dogsData];
+  const [dogData, setDogData] = useState([]);
   const [itemsPerPage, setItemsPerPage] = useState(15);
+  const [currentPage, setCurrentPage] = useState(1);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
 
   useEffect(() => {
     if (window.innerWidth <= 414) setItemsPerPage(20);
     if (window.innerWidth > 414) setItemsPerPage(15);
   }, []);
 
-  const [currentPage, setCurrentPage] = useState(1);
+  // Fetch Dogs Data
+  useEffect(() => {
+    const fetchDogs = async () => {
+      let { data: dogsData, error } = await supabase
+        .from("dogsData")
+        .select("*");
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
+      if (error) console.log(`err: ${error}`);
 
+      if (dogsData) setDogData(dogsData);
+    };
+
+    fetchDogs();
+  }, []);
+  // Fetch Dogs Data
+
+  // Pagination
   function handleNextPage() {
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -37,8 +52,9 @@ export function CategoryMain() {
       setCurrentPage(pageNumber);
     }
   }
+  // Pagination
 
-  // -----------------
+  // Filter
   const [selectedGender, setSelectedGender] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
   const [selectedBreed, setSelectedBreed] = useState(null);
@@ -78,10 +94,13 @@ export function CategoryMain() {
     setMinPrice(null);
     setMaxPrice(null);
   }
+  // Filter
 
-  // -----------------
+  // Sort
   const [sortType, setSortType] = useState("age");
   const [sortOrder, setSortOrder] = useState("asc");
+  const currentItems = sortedDogs.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(sortedDogs.length / itemsPerPage);
 
   const sortedDogs = [...filteredDogs].sort((a, b) => {
     if (sortType === "age") {
@@ -92,9 +111,6 @@ export function CategoryMain() {
     }
     return 0;
   });
-
-  const currentItems = sortedDogs.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(sortedDogs.length / itemsPerPage);
 
   function handleSortChange(type) {
     setSortType(type);
@@ -111,12 +127,15 @@ export function CategoryMain() {
     handleSortChange(selectedSortType);
     handleSortOrderChange(selectedSortOrder);
   }
+  // Sort
 
+  // Mobile Filter
   const [showFilter, setShowFilter] = useState(false);
 
   function handleFilter() {
     setShowFilter((val) => !val);
   }
+  // Mobile Filter
 
   return (
     <div className="max-w-[1180px] mobile:max-w-[383px] w-full mt-[35px] mx-auto flex gap-[20px] mb-[60px] mobile:flex-col">

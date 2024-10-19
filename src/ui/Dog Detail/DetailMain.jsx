@@ -14,6 +14,7 @@ import { Info } from "./Info";
 
 export function DetailMain({ item, newLink }) {
   const newName = item.name.split("-");
+
   return (
     <div className="w-[1180px] h-[870px]  mt-[48px] mx-auto flex gap-[34px] px-[20px] py-[22px] border border-[#EBEEEF] rounded-[20px] mobile:hidden">
       <div className="w-[560px] h-[590px]">
