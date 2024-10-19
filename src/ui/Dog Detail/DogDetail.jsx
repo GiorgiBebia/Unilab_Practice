@@ -9,28 +9,38 @@ import supabase from "../../data/supabase";
 import { useEffect, useState } from "react";
 
 function DogDetail() {
-  const [arr, setArr] = useState([]);
+  const [dogArr, setDogArr] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDogs = async () => {
+      try {
+        setLoading(true);
+        const { data: dogsData, error } = await supabase
+          .from("dogsData")
+          .select("*");
+
+        if (error) throw error;
+
+        setDogArr(dogsData);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDogs();
+  }, []);
 
   const location = useLocation();
   const link = location.pathname.split("/");
   link.shift();
   link.shift();
   const newLink = link[0].split("%20").join(" ");
-  const item = arr.find((item) => item.name === newLink);
+  const item = dogArr.find((item) => item.name === newLink);
 
-  useEffect(() => {
-    const fetchDogs = async () => {
-      let { data: dogsData, error } = await supabase
-        .from("dogsData")
-        .select("*");
-
-      if (error) console.log(`err: ${error}`);
-
-      if (dogsData) setArr(dogsData);
-    };
-
-    fetchDogs();
-  }, []);
+  if (loading) return <div></div>;
 
   return (
     <div className="bg-[#FDFDFD]">
@@ -40,7 +50,7 @@ function DogDetail() {
       <DetailMain item={item} newLink={newLink} />
       <DetailMainMobile item={item} newLink={newLink} />
       <LovelyCustomer />
-      <SeeMorePuppies item={arr} />
+      <SeeMorePuppies item={dogArr} />
       <Footer />
     </div>
   );

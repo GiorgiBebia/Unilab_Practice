@@ -99,8 +99,6 @@ export function CategoryMain() {
   // Sort
   const [sortType, setSortType] = useState("age");
   const [sortOrder, setSortOrder] = useState("asc");
-  const currentItems = sortedDogs.slice(startIndex, endIndex);
-  const totalPages = Math.ceil(sortedDogs.length / itemsPerPage);
 
   const sortedDogs = [...filteredDogs].sort((a, b) => {
     if (sortType === "age") {
@@ -111,6 +109,9 @@ export function CategoryMain() {
     }
     return 0;
   });
+
+  const currentItems = sortedDogs.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(sortedDogs.length / itemsPerPage);
 
   function handleSortChange(type) {
     setSortType(type);
